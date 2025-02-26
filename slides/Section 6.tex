@@ -1,0 +1,157 @@
+\documentclass[11pt]{beamer}
+
+\usetheme[progressbar=frametitle]{metropolis}
+\usepackage{appendixnumberbeamer}
+\usepackage{pgfpages}
+\usepackage{amsmath}
+\usepackage{mathtools} % for '\mathclap' macro
+\usepackage{xcolor}
+%\setbeameroption{show notes on second screen}
+
+
+
+\usepackage{pgfopts}
+
+\newenvironment{rcasesx}
+  {\left.\begin{aligned}}
+  {\end{aligned}\right.}
+
+\newcommand{\questionslide}[0]{
+{\setbeamercolor{palette primary}{fg=black, bg=yellow}
+\begin{frame}[standout]
+    \raggedright
+  Any questions? \\ \vspace{1cm}
+  \raggedleft
+  \dots{ } Remember -- Every question is useful!
+\end{frame}
+}}
+
+\setbeamercolor{block title alerted}{%
+    use={block title, alerted text},
+    bg=yellow,
+    fg=black
+}
+
+
+\definecolor{peppermint}{RGB}{75, 161, 115}
+\definecolor{TolLightBlue}{HTML}{88CCEE}
+\definecolor{RedViolet}{HTML}{A1246B}
+\definecolor{Salmon}{HTML}{F69289}
+
+
+\setbeamercolor{alerted text}{fg=peppermint , bg= black}
+
+\usepackage{booktabs}
+\usepackage[scale=2]{ccicons}
+
+\usepackage{pgfplots}
+\usepgfplotslibrary{dateplot}
+
+\makeatletter 
+\def\beamer@framenotesbegin{% at beginning of slide
+    \usebeamercolor[fg]{normal text}
+    \gdef\beamer@noteitems{}% 
+    \gdef\beamer@notes{}% 
+}
+\makeatother
+
+
+\usepackage{xspace}
+\newcommand{\themename}{\textbf{\textsc{metropolis}}\xspace}
+
+
+\title{Midterm Review
+}
+\subtitle{Econ 140, Section 6}
+% \date{\today}
+\date{}
+\author{Jonathan Old}
+
+% \titlegraphic{\hfill\includegraphics[height=1.5cm]{logo.pdf}}
+
+\begin{document}
+
+\maketitle
+
+\begin{frame}{Roadmap}
+  \setbeamertemplate{section in toc}[sections numbered]
+  \tableofcontents%[hideallsubsections]
+\end{frame}
+
+
+
+
+\questionslide
+
+
+\section{Exam review}
+
+
+\begin{frame}{Omitted Variable Bias}
+We can summarize everything of OVB in three equations. Let $Y_i$ be the outcome variable, $X_i$ our regressor of interest, $W$ a series of control variables, and $Z_i$ the "omitted" variable.
+\begin{align*}
+   \text{[Long regression]} \quad Y_i &= c_1 + {\color{peppermint}\beta_L} X_i + {\color{RedViolet}\delta}Z_i +  W\pi  + e_i \\
+   \text{[Short regression]} \quad Y_i &= c_2 + {\color{gray}\beta_S} X_i  + W\pi  +u_i \\
+   \text{[Auxiliary regression]} \quad Z_i &= c_3 +  {\color{Salmon}\gamma} X_i + W\pi  +v_i 
+\end{align*}
+    Then, the \textbf{Omitted variable bias formula} states that:
+\begin{align*}
+   \underbrace{\vphantom{ \left(\frac{a^{0.3}}{b}\right) }{\color{gray}\beta_S}}_{\text{Short =}} = \underbrace{\vphantom{ \left(\frac{a^{0.3}}{b}\right) }{\color{peppermint}\beta_L}}_{\text{Long }+} + \underbrace{\vphantom{ \left(\frac{a^{0.3}}{b}\right) }{\color{RedViolet} \delta}}_{\text{Omitted } \times} \cdot \underbrace{\vphantom{ \left(\frac{a^{0.3}}{b}\right) }{\color{Salmon}\gamma}}_{\text{Included}}
+\end{align*}
+
+
+The OVB formula describes what happens to our coefficient of interest, $\beta$, as we include one additional variable $Z$ in the regression. We call ${\color{RedViolet} \delta} {\color{Salmon}\gamma}$ the \textbf{omitted variable bias}. 
+We can appraise the direction of the bias by multiplying our guesses for the signs of ${\color{RedViolet} \delta}$ and ${\color{Salmon}\gamma}$.
+\end{frame}
+
+
+
+
+
+\begin{frame}{Hypothesis testing mini-cheatsheet}
+\vspace{-0.2cm}
+\LARGE
+\begin{align*}
+    \left| \frac{\hat{\beta}}{\operatorname{SE}(\hat{\beta})} \right| &\geq 1.96 \\ 
+    \Leftrightarrow | \operatorname{t-stat}| &\geq 1.96 \\  \Leftrightarrow \operatorname{p-value} &\leq 0.05 \\
+    \Leftrightarrow 0 &\notin \text{CI}
+\end{align*}
+\\
+\normalsize \alert{When testing the null hypothesis $H_0$: $\beta = 0$ (against the alternative hypothesis $H_0$: $\beta \neq 0$), then if any of these conditions holds, we reject the null.}
+
+\end{frame}
+
+
+
+
+
+
+
+\begin{frame}{How to approach an exam question}
+\begin{enumerate}
+    \item  Think: About the question, about the real world
+    \item  Start with the numbers you see
+    \begin{itemize}
+        \item One-sentence summary \item Direction (positive or negative?) \item Statistical significance (significant or insignificant, level?) \item (Economic) magnitude (big or small?)
+    \end{itemize}
+\item Then: Establish whether estimated relationship is causal or not
+\begin{itemize}
+\item  What do the results mean? Correlation (interesting) or causality
+(policy-relevant)
+\item  Is X-variable randomized? Do we have valid counterfactuals?
+\item  If not: Do you expect bias? Of which sort (OVB, reverse causality,
+bad controls, $\dots$)?
+\item Find a plausible story for bias (using the OVB formula)
+\end{itemize}
+\end{enumerate}
+\textbf{\alert{There are no traps!}}
+\end{frame}
+
+
+
+
+
+
+
+
+\end{document}
