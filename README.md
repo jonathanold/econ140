@@ -8,10 +8,14 @@ Feel free to use the slides with an acknowledgement for me - and I'm always happ
 
 This repository includes lecture slides created using the Beamer class in LaTeX with the Metropolis theme. The slides cover various econometric topics tailored for undergraduate economics courses focused on an intuitive understanding of modern causal inference tools, without being (overly) formal.
 
+In addition, the repository contains Jupyter Notebooks of R code files used to explain some of the regression-related concepts.
 
-## Sections
 
-Below is a breakdown of the sections included in this repository:
+## Overview of material
+
+The code files (in subfolder code) are used in sections 3 and 4.
+In addition, I am sharing material on useful datasets that can be readily imported into R for empirical projects (`R datasets.pdf`), a guide on interpreting regression output from regressions in R (`Interpreting regression tables.pdf`), and a "Cheatpack" (`Cheatpack.pdf`) that summarizes the most important slides.
+Slides are in the subfolder slides. Below is a breakdown of the sections included in this repository:
 
 
 | Section | Title | Key Topics Covered |
@@ -31,29 +35,16 @@ Below is a breakdown of the sections included in this repository:
 
 ---
 
-## Key Topics
-
-### Core Concepts:
-
-1. **Regression Analysis**: Learn how to interpret coefficients, address omitted variable bias, and use quadratic/interaction terms.
-2. **Randomized Controlled Trials**: Learn the fundamentals of RCTs and their role in causal inference.
-3. **Instrumental Variables**: Understand when and how to use IVs to address endogeneity issues.
-4. **Differences-in-Differences**: Explore causal inference using 2x2 designs and the parallel trends assumption.
-5. **Panel Data**: Generalizing differences-in-differences.
-4. **Regression discontinuity**: Use arbitrary cut-offs to estimate local causal effects.
-
-
----
 
 ## How to Use
 
 1. Clone this repository:
 
 ```bash
-git clone https://github.com/jonathanold/econ140-slides.git
+git clone https://github.com/jonathanold/econ140.git
 ```
 
-2. Open the `.tex` files using any LaTeX editor (e.g., Overleaf or TeXShop).
+2. Open the `.tex` files in the slides folder using any LaTeX editor (e.g., Overleaf or TeXShop).
 3. Compile the slides using `pdflatex` or your preferred LaTeX compiler.
 4. Review the slides for each section to prepare for lectures or exams.
 
