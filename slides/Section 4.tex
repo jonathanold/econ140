@@ -1,0 +1,443 @@
+\documentclass[11pt]{beamer}
+
+\usetheme[progressbar=frametitle]{metropolis}
+\usepackage{appendixnumberbeamer}
+\usepackage{pgfpages}
+%\setbeameroption{show notes on second screen}
+
+\usepackage{emoji}
+
+
+\newcommand{\link}[3][mLightBrown]{\href{#2}{\color{#1}{#3}}}%
+
+\newcommand{\questionslide}[0]{
+\section[Your questions]{Time for your questions}
+{\setbeamercolor{palette primary}{fg=black, bg=yellow} % bg=peppermint
+\begin{frame}[standout]
+    \raggedright
+  Any questions? \\ \vspace{1cm}
+  \raggedleft
+  \dots Remember -- this is a safe space! Every question is useful!
+\end{frame}
+}}
+
+\usepackage{makecell}
+
+
+\newenvironment{rcases}
+  {\left.\begin{aligned}}
+  {\end{aligned}\right\rbrace}
+
+\usepackage{pgfopts}
+
+\newenvironment{rcasesx}
+  {\left.\begin{aligned}}
+  {\end{aligned}\right.}
+
+
+\setbeamercolor{block title alerted}{%
+    use={block title, alerted text},
+    bg=yellow,
+    fg=black
+}
+
+\usepackage{booktabs}
+
+
+\definecolor{peppermint}{RGB}{75, 161, 115}
+\definecolor{TolLightBlue}{HTML}{88CCEE}
+\definecolor{RedViolet}{HTML}{A1246B}
+\definecolor{Salmon}{HTML}{F69289}
+
+
+\setbeamercolor{alerted text}{fg=peppermint , bg= black}
+
+\usepackage{booktabs}
+\usepackage[scale=2]{ccicons}
+
+\usepackage{pgfplots}
+\usepgfplotslibrary{dateplot}
+
+\makeatletter 
+\def\beamer@framenotesbegin{% at beginning of slide
+    \usebeamercolor[fg]{normal text}
+    \gdef\beamer@noteitems{}% 
+    \gdef\beamer@notes{}% 
+}
+\makeatother
+
+
+\usepackage{xspace}
+\newcommand{\themename}{\textbf{\textsc{metropolis}}\xspace}
+
+\title{Practicing regression}
+\subtitle{Econ 140 Spring 2025, Section 4}
+% \date{\today}
+\date{}
+\author{Jonathan Old}
+
+\institute{ \link{https://docs.google.com/document/d/1aJLqXpJkgN0fKDtEwYge8xHyxrnHQ2PGlsx9xOsmq-Y/}{Syllabus/OH} \hspace{0.2cm} \link{https://bcourses.berkeley.edu/courses/1542035/files/folder/Sections/Jonathan\%20(Sections\%20110\%2C\%20112)}{bCourses}  \hspace{0.2cm} \link{https://jonathanold.github.io/teaching.html}{Website}  \hspace{0.2cm} \link{https://forms.gle/HuV4DZCKyG5nTbVu6}{Feedback form (\textbf{Always open})} \hspace{0.2cm} \link{https://posit.co/downloads/}{RStudio}}
+% \titlegraphic{\hfill\includegraphics[height=1.5cm]{logo.pdf}}
+
+\usepackage{hyperref}
+
+\begin{document}
+
+
+\maketitle
+
+\begin{frame}{Roadmap}
+  \setbeamertemplate{section in toc}[sections numbered]
+  \tableofcontents%[hideallsubsections]
+\end{frame}
+
+
+
+
+\questionslide
+
+
+
+\section{Omitted Variable Bias}
+
+
+
+
+\begin{frame}{The most important slide of this course (until the midterm)}
+Let $Y_i$ be the outcome variable, $X_i$ our regressor of interest, $W$ a series of control variables, and $Z_i$ the "omitted" variable.
+\begin{align*}
+   \text{[Long regression]} \quad Y_i &= \alpha_L + {\color{peppermint}\beta_L} X_i + {\color{RedViolet}\lambda}Z_i +  W\beta_{WL}  + e_i^S \\
+   \text{[Short regression]} \quad Y_i &= \alpha_S + {\color{gray}\beta_S} X_i  + W\beta_{WS}  +e_i^L \\
+   \text{[Auxiliary regression]} \quad Z_i &= \pi_0 +  {\color{Salmon}\pi_
+1} X_i + W\pi_{WP}  +v_i 
+\end{align*}
+    Then, the \textbf{Omitted variable bias formula} states that:
+\begin{align*}
+   \underbrace{\vphantom{ \left(\frac{a^{0.3}}{b}\right) }{\color{gray}\beta_S}}_{\text{Short =}} = \underbrace{\vphantom{ \left(\frac{a^{0.3}}{b}\right) }{\color{peppermint}\beta_L}}_{\text{Long }+} + \underbrace{\vphantom{ \left(\frac{a^{0.3}}{b}\right) }{\color{RedViolet} \lambda}}_{\text{Omitted } \times} \cdot \underbrace{\vphantom{ \left(\frac{a^{0.3}}{b}\right) }{\color{Salmon}\pi_{1}}}_{\text{Included}}
+\end{align*}
+
+
+The OVB formula describes what happens to our coefficient of interest, $\beta$, as we include one additional variable $Z$ in the regression. We call ${\color{RedViolet} \lambda} {\color{Salmon}\pi_{1}
+}$ the \textbf{omitted variable bias}. 
+Direction of bias: multiply our guesses for the signs of ${\color{RedViolet} \lambda}$ and ${\color{Salmon}\pi_1}$.
+\end{frame}
+
+
+
+
+
+\section{Bad Controls}
+
+
+\begin{frame}{Control variables}
+Control variables are additional variables (or covariates) \textbf{included in a regression}. We do this for \textbf{various reasons} (in decreasing order of importance):
+\begin{itemize}
+    \item To remove selection bias / omitted variable bias
+    \item To increase precision of our estimates
+    \item To know about the (conditional/partial) correlation of other variables
+    \item To better predict the outcome
+\end{itemize}
+
+\end{frame}
+
+
+
+
+
+\begin{frame}{Bad controls}
+    \begin{itemize}
+
+        \item Some controls are called "bad controls". These are:
+        \begin{enumerate}
+            \item Variables that are themselves outcomes of a treatment: What happens if you control for the change in English test scores in the regression below? 
+
+
+    \item Variables that moderate the treatment effect, e.g. controlling for occupation choice in gender wage gap regression $\dots$
+
+    \end{enumerate}
+    \item \textbf{\color{TolLightBlue} Rule of Thumb: Good controls are either pre-determined or immutable characteristics.}
+    \item Another way to think about it: Controls help us make "apples to apples" comparisons. We should think before what exactly we want to compare to each other.
+    \end{itemize}
+\end{frame}
+
+
+
+
+{\setbeamercolor{palette primary}{fg=black, bg=peppermint}
+\begin{frame}[standout]
+    \centering
+  Mathematically, good and bad controls are the same thing. \\ 
+  We need to use our \emoji{brain} to distinguish them!
+\end{frame}
+}
+
+
+
+
+\section{Quadratic Terms}
+
+
+
+
+\begin{frame}{Making OLS more interesting}
+    \begin{itemize}
+        \item We can extend the simple OLS framework
+        $$ Y_i = \beta_0 + \beta_1 X_i + e_i $$
+        to something richer:
+        $$ Y_i = \beta_0 + \beta_1 X_i + \beta_2 X_i^2 + e_i $$
+        \item All questions of the type \textit{"how is $Y_i$ expected to change if we change $X_i$", keeping all other variables in the regression fixed} can be solved with \textbf{partial derivatives} -- in this case:
+         $$ \frac{\partial Y_i}{\partial X_i} = \pause \beta_1 + 2 \cdot \beta_2 \cdot X_i $$
+    \end{itemize}
+\end{frame}
+
+
+
+
+
+
+\begin{frame}{Example for Quadratic Terms}
+Let us see how to use quadratic terms on
+\texttt{\alert{\href{https://datahub.berkeley.edu/user/jonathan_old/lab/tree/ECON-140-FA24-RDE/Sections/Jonathan/Section\%204\%20-\%20OVB\%20and\%20quadratic\%20terms.ipynb}{Datahub}}}
+
+\end{frame}
+
+
+
+
+
+\section{Interaction terms }
+
+\begin{frame}{How to think about interaction terms}
+
+We will cover this as an exercise. My most important advice to you is that you should use partial derivatives! \\ 
+
+
+The slides after this will be skipped in class, but feel free to use them for your own learning.
+
+\end{frame}
+
+
+
+\begin{frame}{Interaction terms: Making OLS more interesting}
+ Let us consider the model
+        $$ Y_i = \beta_0 + \beta_1 X_{1i} + \beta_2 X_{2i}  
+        %+ \beta_3 X_{3i}
+        +   e_i $$
+        where $Y_i$ is a country's GDP per capita, $X_{1i}$ the value of its natural resources, and $X_{2i}$ a measure of how democratic it is.
+        \begin{enumerate}
+            \item How do we interpret $\beta_1$? \\ \pause 
+            \textbf{Keeping democracy fixed, increasing the value of a country's natural resources by one unit is associated with $\beta_1$ higher GDP per capita.}
+            \item How do we interpret $\beta_2$? \\ \pause 
+            \textbf{Keeping natural resources fixed, increasing a country's democracy score by one unit  is associated with $\beta_2$ higher GDP per capita.}
+        \end{enumerate}
+
+ \end{frame}
+ 
+ \begin{frame}{Interaction Terms (ii)}
+ 
+ Now, let us extend the model to:
+        $$ Y_i = \beta_0 + \beta_1 X_{1i} + \beta_2 X_{2i}  
+        + \beta_3 X_{1i}  X_{2i}
+        +   e_i $$
+        \begin{enumerate}
+         \item What is the "effect" of $X_{1i}$ on $Y_i$?  \pause $\beta_1$ + $\beta_3 X_{2i}$
+         \pause
+            \item How do we interpret $\beta_1$?  \pause \textbf{The effect of an additional unit of $X_{1i}$ {\color{orange}, if $X_{2i}$ is equal to 0}.}
+        \pause
+            \item How do we interpret $\beta_2$? \pause  \textbf{The effect of an additional unit of $X_{2i}$ {\color{orange}, if $X_{1i}$ is equal to 0}.}
+            \pause
+            \item How do we interpret $\beta_1 + \beta_3$?  \pause  \textbf{The effect of an additional unit of $X_{1i}$ {\color{orange}, if $X_{2i}$ is equal to 1}.}
+            
+        \end{enumerate}
+
+
+{\textbf{\color{TolLightBlue} Rule of thumb: Always use partial derivatives to make sure that you are right!}}
+
+\end{frame}
+
+
+
+\begin{frame}{Interactions with only dummy variables}
+\begin{itemize}
+    \item Take any two binary variables, for example: Studies at UC Berkeley or not (UCB$_i$), and is from California or not (Cali$_i$). 
+    \item The regression with interactions looks like this:
+$$
+Y_i = \underbrace{\beta_0}_{17.77} + \underbrace{\beta_1}_{2.28}\text{UCB}_i + \underbrace{\beta_2}_{0.95}\text{Cali}_i + \underbrace{\beta_3}_{-0.97}\text{UCB}_i \times \text{Cali}_i
+$$
+\item We can write this in a table, and get all group averages
+\vspace{0.25cm}
+    \begin{table}[]
+\begin{tabular}{lll}
+\toprule
+                      & Cali = 1                                                & Cali=0            \\ \midrule
+UCB = 1           & $\beta_0 + \beta_1 + \beta_2 + \beta_3$ & $\beta_0 + \beta_1$  \\
+& =17.77+2.28+0.95-0.97 &  = 17.77 + 2.28 \\
+UCB = 0  & $\beta_0 + \beta_2$                            & $\beta_0$                  \\
+& = 17.77 + 0.95 & =17.77 \\
+\bottomrule
+\end{tabular}
+\end{table}
+\vspace{0.25cm}
+
+\item Take differences between cells to get different effects!
+\end{itemize}
+
+\end{frame}
+
+
+
+
+
+
+
+\section{Logs} 
+ \begin{frame}{Notes on logarithms}
+     \begin{itemize}
+         \item We can take logs of whole equations to get linear models (problem set)
+         \item We can also take logs of specific variables, especially when they have long tails (wealth in the US, GDP per capita, etc.)
+        \item We can get to the right interpretation of log-specifications with just math \pause
+        \item But I will make your life easier with a cheat sheet.
+     \end{itemize}
+ \end{frame}
+
+
+
+
+
+\begin{frame}{Logs: Cheatsheet}
+
+\begin{table}[]
+\begin{tabular}{lccll}
+\toprule 
+Model       & LHS                     & RHS                     & \makecell{A change in \\ $x$ by $\dots$} & \makecell{is associated \\ with a change \\ in $y$ by $\dots$} \\ \midrule
+Level-Level & y                       & x                       & $1$ unit         & $\beta_1$ units                     \\
+Level-Log   & y                       & $\log(x)$ & $1\%$            & $\beta_1/100$ units                 \\
+Log-Level   & $\log (y)$ & x                       & 1 unit         & $100\beta_1$\%                    \\
+Log-Log     & $\log(y)$ & $\log(x)$ & $1\%$            & $\beta_1\%$                       \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{\color{peppermint} If you want to get a bonus star from me, write "approximately" in log-interpretations.}
+
+\end{frame}
+
+
+
+
+\section{Topics we've glossed over so far}
+
+
+
+\begin{frame}{What if the outcome variable is binary (a dummy variable)?}
+    Let's run the regression 
+    $$ \text{Defaulted}_i = \alpha + \beta \tilde{\text{Credit Score}}_i + e_i$$
+where $\text{Defaulted}_i$ is equal to 1 if individual $i$ has ever defaulted on a loan (mortgage, credit card, auto loan, etc.), and $\tilde{\text{Credit Score}}_i$ is $i$'s credit score, \textbf{minus the average credit score in the sample} (Note: US credit scores range from 300 to 850 points).
+\begin{enumerate}
+    \item You run a regression and get  $\hat{\alpha}$=0.1. How do you interpret this? Does this number make sense here?
+    \item Your estimate for $\beta$ is $\hat{\beta}=0.001$. Interpret.
+\end{enumerate} \pause 
+  \textbf{\color{TolLightBlue} With a dummy dependent variable, changing $X_i$ by one unit increases the probability of $Y_i=1$ by $\hat{\beta} \cdot 100$ percentage points.}
+\end{frame}
+
+
+
+
+
+
+
+\section{Exam practice}
+
+
+\begin{frame}{Practice exam question: 1a)}
+
+   \small{The Ministry of Truth is interested in a rumour that \textbf{air pollution could impact mental health}. One of the most harmful pollutants is fine particulate matter PM2.5, which comes from operations that involve the burning of fuels such as wood, oil, coal, etc. A research team is sent to investigate the rumour. The team \textbf{randomly} selects and surveys 19,920 people across 71 districts of the country. The key variable, Exposure $E_i$, is a \textbf{dummy variable} equal to 1 if the individual $i$ is exposed to a large amount of PM2.5 in the last 24 hours, and 0 otherwise. The team also conducts a standardised questionnaire to record \textbf{depressive symptoms} in the last month, called the Kessler Psychological Distress scale (K6). The questionnaire results in a score, Depression$_i$, that ranges from 0 to 24; and the higher the score, the more severe the depressive symptoms for individual $i$. The variable has a sample average of 2.96. \textbf{Running regressions with Depression D$_i$ as  the dependent variable, you obtain the following results}:
+}
+    
+\end{frame}
+
+
+
+\begin{frame}{Practice exam question: 1a)}
+
+\footnotesize
+Dependent variable: Depression $_i$
+
+\begin{tabular}{lccc}
+\toprule
+\textbf{Regressor}               & \textbf{$(1)$}       & $(2)$ & $(3)$                         \\
+\midrule
+Exposure $_i$                    & $0.834$              & $0.614$                                                   & $0.554$                       \\
+                                 & $(0.032)$            & $(0.045)$                                                 & $(0.042)$                     \\
+Exposure $_i \times$ Female $_i$ &                      & $0.065$                                                   &                               \\
+                                 &                      & $(0.024)$                                                 &                               \\
+Female $_i$                      &                      & $-0.739$                                                  & $-0.825$                      \\
+                                 &                      & $(0.036)$                                                 & $(0.066)$                     \\
+Age$_{i}$                        &                      &                                                           & $0.452$                       \\
+                                 &                      &                                                           & $(0.132)$                     \\
+Age$_i^2$    &                      &                                                           & $0.524$                       \\
+                                 & \multicolumn{1}{l}{} & \multicolumn{1}{l}{}                                      & \multicolumn{1}{l}{$(0.121)$} \\
+                                 \bottomrule \\
+\end{tabular}  \\
+
+Notes: All estimations contain a constant term. Robust standard errors are in the parentheses. Age$_i$ is the age (years old) of individual $i$, and Age$_i^2$ is the square of Age$_i$.
+
+\end{frame}
+
+
+
+
+\begin{frame}{Pratice Exam question: 1a)}
+   \textbf{a)} Interpreting the coefficient in Column (1), a journalist, Katherine, claims: "Since participants are randomly selected, we can infer that exposure to a large amount of PM2.5 does cause depression." \\
+\textbf{i.} Explain carefully why Katherine is wrong, specifying the direction of bias(es) if there is any. Which assumption(s) would she need to impose for the causality claim to hold? \\
+\textbf{ii.} What is the correct interpretation from Column (1) that Katherine should have made?
+\end{frame}
+
+
+\begin{frame}{(Detailed) Suggested Answer: 1a)}
+\footnotesize{
+\textbf{i.} \textbf{ Random selection is not the same thing as random assignment to treatment!} Survey respondents may be systematically different from each other in ways that are correlated with depression and pollution exposure. Therefore, the results from a regression can not be interpreted causally (and are biased). A priori, it is unclear in which direction the bias would go, but we could imagine that (\textbf{Only one explanation needed for exam}):\\
+On rainy days, pollution is lower (-) and people may be reporting more depression symptoms (+), leading to downward bias.
+More wealthy people choose to live in less polluted areas (-) and they may have less depression (e.g., better access to mental health resources) (-), leading to upward bias.\\
+
+For the regression causality claim to hold, we need to assume that:
+People exposed to pollution and those not exposed to pollution would have, on average, the same depression level, had they been exposed to the same level of pollution. In other words: \textbf{Both groups would have to have the same potential depression outcomes}.\\
+
+\textbf{ii.} On average, people that were exposed to pollution had a 0.8 points higher score on the depression scale. The difference between the two groups is significant at the 5\% level.
+}
+\end{frame}
+
+
+
+
+\begin{frame}{Pratice Exam question: 1b)}
+   \textbf{b)} Interpret column (2) of the regression table \\
+\textbf{i.} A colleague notes the the coefficient on Female$_i$ is significant, and states: "The effect of being female on depression is significantly different from zero". Do you agree with the statement? Why or why not? \\
+\textbf{ii.} How is pollution exposure related to depression, for men? And how for women?
+\end{frame}
+
+
+
+\begin{frame}{(Detailed) Suggested Answer: 1b)  }
+\footnotesize{
+\textbf{i.} \textbf{It is difficult to make such interpretations when interaction terms are involved.} Taking partial derivatives, the "effect" of being female is:
+$$ \frac{\partial \text{Depression}_i}{\partial \text{Female}_i} = -0.739 + 0.065\cdot \text{Exposure}_i $$
+We can do inference (and test significance) at Exposure$_i=0$ (just looking at the coefficient for female, $-0.739$ is significant). We can also do it for any other level of exposure, but for that we also need to take the other coefficient into account and cannot just use the table.\\
+\textbf{Comment 1: Less relevant for the exam, but important to be aware of!} \\
+\textbf{Comment 2: We can always do inference on the interaction term, which is significant here!} 
+
+\textbf{ii.} Taking partial derivatives, the "effect" of pollution exposure is:
+$$ \frac{\partial \text{Depression}_i}{\partial \text{Exposure}_i} = 0.614 + 0.065\cdot \text{Female}_i $$
+Hence, the "effect" for Males is $0.614$ and the "effect" for Females is larger ($0.614+0.065 = 0.779$). The effect of pollution is also \textbf{signficantly} larger than for men, because the coefficient on the interaction term is significantly different from zero.
+}
+\end{frame}
+
+
+\begin{frame}
+If time permits: Practice exam question, \href{https://drive.google.com/drive/u/4/folders/1-cQBZhZluOgRleSDZocxRj2OYfL8uOmj}{midterm 2022}.
+\end{frame}
+
+
+
+
+
+\end{document}
